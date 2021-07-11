@@ -15,7 +15,12 @@ public class Client {
             System.out.println("4.Xóa tài khoản");
             System.out.println("5.Đổi mật khẩu");
             System.out.println("6.Exit");
-            int choice = Integer.parseInt(sc.nextLine());
+            int choice = 0;
+            try {
+                 choice = Integer.parseInt(sc.nextLine());
+            } catch (Exception e){
+                System.out.println("nhập số");
+            }
             switch (choice) {
                 case 1 -> Qltk.logIn();
                 case 2 -> Qltk.taoTk();

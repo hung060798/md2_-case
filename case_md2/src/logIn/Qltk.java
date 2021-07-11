@@ -1,14 +1,15 @@
 package logIn;
 import qlnv.Loi;
 import qlnv.Menu;
+import qlnv.MenuUser;
 
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Qltk {
     static Menu menu = new Menu();
+    static MenuUser menuUser = new MenuUser();
     static Scanner sc = new Scanner(System.in);
     static File file = new File("taiKhoan.txt");
     static File file1 = new File("taiKhoanDN.txt");
@@ -51,6 +52,24 @@ public class Qltk {
     }
 }
 
+    public static String getRole(){
+        while (true) {
+            try {
+                System.out.println("nhập role");
+                String role = sc.nextLine();
+                if(role.equals("user")||role.equals("admin")){
+                    return role;
+                }else throw new InterruptedException();
+
+            }catch (InterruptedException e){
+                System.out.println("Sai định dạng !!!!");
+            }
+            catch (Exception e){
+                System.out.println("Sai định dạng !!!");
+            }
+        }
+    }
+
 
     public static void logIn() throws Exception {
             try {
@@ -63,9 +82,15 @@ public class Qltk {
                 for (TaiKhoan t : list) {
                     if (t.getTk().equals(tk) && t.getMk().equals(mk)){
                         check = false;
-                        list1.add(new TaiKhoan(tk, mk));
-                        ghiTKDN(list1);
-                        menu.Menu();
+                        if (t.getRole().equals("user")) {
+                            list1.add(new TaiKhoan(tk, mk, t.getRole()));
+                            ghiTKDN(list1);
+                           menuUser.Menu();
+                        } else {
+                            list1.add(new TaiKhoan(tk, mk, t.getRole()));
+                            ghiTKDN(list1);
+                            menu.Menu();
+                        }
                         break;
                     }
                 }
@@ -85,14 +110,15 @@ public class Qltk {
         list = docTK();
         System.out.println("nhâp tài khoản");
         String tk = sc.nextLine();
-        System.out.println("nhập mật khẩu");
+        System.out.println("nhập mật khẩu hiện tại");
         String mk = sc.nextLine();
         boolean check = true;
         for (int i =0; i<list.size(); i++){
             if (list.get(i).getTk().equals(tk) && list.get(i).getMk().equals(mk)){
                 System.out.println("nhập mật khẩu mới");
                 String mkMoi = sc.nextLine();
-                list.set(i,new TaiKhoan(tk, mkMoi));
+                list.set(i,new TaiKhoan(tk, mkMoi, list.get(i).getRole()));
+                System.out.println("thay đổi mật khẩu thành công");
                 ghiTK(list);
                 check = false;
             }
@@ -183,7 +209,8 @@ public class Qltk {
     }
 
     public static void taoTk() {
-        list.add( new TaiKhoan(getTK(),getMK()));
+        list.add( new TaiKhoan(getTK(),getMK(), getRole()));
+        System.out.println("đăng kí tài khoản thành công");
         ghiTK(list);
     }
 
@@ -205,7 +232,7 @@ public class Qltk {
             oos.writeObject(tk);
             oos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+           e.printStackTrace();
         }
     }
 

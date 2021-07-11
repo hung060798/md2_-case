@@ -2,9 +2,7 @@ package qlnv;
 
 import logIn.Client;
 import logIn.Qltk;
-import qlnv.*;
 
-import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -13,9 +11,6 @@ public class QLNV {
     static Scanner sc =  new Scanner(System.in);
     static File nhanVien = new File("nhanVien.txt");
     static ArrayList<NhanVien> list = new ArrayList<>();
-
-    private static EmailRegex emailRegex;
-    private static SdtRegex sdtRegex;
 
     public void them( ) throws IOException {
             System.out.println("1.thêm nhân viên fulltime");
@@ -35,13 +30,29 @@ public class QLNV {
         list = docFile();
         System.out.println("nhập tên cần tìm kiếm thông tin");
         String name = sc.nextLine();
+        boolean check = false;
         for (NhanVien nv : list){
-            if(nv.getName().equals(name)){
+            if(nv.getName().contains(name)){
                 System.out.println(nv);
             }else if(!(nv.getName().equals(name))){
-                System.out.println("không tìm thấy nhân viên " + name);
+                check = true;
             }
         }
+        if (check){
+            System.out.println("không tìm thấy nhân viên " + name);
+        }
+    }
+
+    public void xoa() throws IOException {
+        list = docFile();
+        System.out.println("nhập mã nhân viên");
+        int id = Integer.parseInt(sc.nextLine());
+        for (int i =0; i< list.size(); i++){
+            if (list.get(i).getId() == id){
+                list.remove(i);
+            }
+        }
+        ghiFile();
     }
 
     public void capNhat() throws IOException {
@@ -81,14 +92,26 @@ public class QLNV {
         ghiFile();
     }
 
-    public void showNvTheoTT(){
-        System.out.println("nhập trạng thái");
-        String trangThai = sc.nextLine();
-        for (NhanVien nv : list){
-            if(nv.getTrangThai().equals(trangThai)){
-                System.out.println(nv.ghi());
+    public void showNvTheoTT() throws IOException {
+        list = docFile();
+        System.out.println("1.true");
+        System.out.println("2.false");
+        int choice = Integer.parseInt(sc.nextLine());
+        if(choice ==1){
+            for (int i =0; i<list.size(); i++) {
+                if (list.get(i).getTrangThai().equals("true")) {
+                    System.out.println(list.get(i));
+                }
             }
         }
+        if (choice==2){
+            for (int i =0; i<list.size(); i++) {
+                if (list.get(i).getTrangThai().equals("false")) {
+                    System.out.println(list.get(i));
+                }
+            }
+        }
+        ghiFile();
     }
 
     public void sortByName() throws IOException {
@@ -130,18 +153,15 @@ public class QLNV {
 
     public String getName() {
         while (true) {
-            try {
-                System.out.println("nhập tên");
-                String name = sc.nextLine();
-                if (name.equals("")) {
-                    throw new Loi();
-                }
-                return name;
-            }catch (Loi e){
-                System.out.println("tên không được để trống");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+                boolean flag;
+                do {
+                    System.out.println("nhập tên");
+                    String name = sc.nextLine();
+                    flag = SdtEmailRegex.validateName(name);
+                    if (flag) {
+                        return name;
+                    } else System.out.println("tên không hợp lệ");
+                } while (!flag);
         }
     }
 
@@ -151,8 +171,7 @@ public class QLNV {
             do {
                 System.out.println("nhập số điện thoại(0XXXXXXXXX)");
                 String sdt = sc.nextLine();
-                sdtRegex = new SdtRegex();
-                flag = sdtRegex.validate(sdt);
+                flag = SdtEmailRegex.validateSDT(sdt);
                 if (flag){
                     return sdt;
                 } else System.out.println("số điện thoại chưa hợp lệ");
@@ -192,8 +211,7 @@ public class QLNV {
                 do {
                     System.out.println("nhập email");
                     String email = sc.nextLine();
-                    emailRegex = new EmailRegex();
-                    flag = emailRegex.validate(email);
+                    flag = SdtEmailRegex.validateEmail(email);
                     if (flag) {
                         list = docFile();
                         for (NhanVien nv : list) {
@@ -286,7 +304,7 @@ public class QLNV {
                 String[] str = line.split(",");
                 if (str.length >= 9) {
                    //String name,int id, int age, String sdt, String gender, String email, String diaChi, double luong, String trangThai
-                    list1.add(new qlnv.NhanVien(str[0], Integer.parseInt(str[1].trim()), Integer.parseInt(str[2].trim()), str[3], str[4], str[5],str[6], Double.parseDouble(str[7].trim()),str[8]));
+                    list1.add(new qlnv.NhanVien(str[0].trim(), Integer.parseInt(str[1].trim()), Integer.parseInt(str[2].trim()), str[3].trim(), str[4].trim(), str[5].trim(),str[6].trim(), Double.parseDouble(str[7].trim()),str[8].trim()));
                 }
             }
             bufferedReader.close();
