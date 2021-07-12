@@ -9,6 +9,7 @@ public class Client {
 
         public static void subMenu() throws Exception {
         while (true) {
+            System.out.printf("%35s \n","-----QUẢN LÝ NHÂN VIÊN-----");
             System.out.println("1.Đăng nhập");
             System.out.println("2.Đăng kí");
             System.out.println("3.Hiển thị danh sách tài khoản");
